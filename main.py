@@ -1,6 +1,24 @@
+""""
+Copyright (C) 2026 basilisezkid23   
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""
+
+
 import pygame
+from pathlib import Path
 import sys
-import os
 import math
 import random
 
@@ -42,16 +60,27 @@ class AudioEngine:
         self.ch_wash.set_volume(1.0)
 
     def load_sounds(self):
-        sound_files = ["relay1.wav", "relay2.wav", "start.wav", "stop.wav", "wash.wav", "MotorPump1.wav"]
-        for sf in sound_files:
-            path = os.path.join("sounds", sf)
-            if os.path.exists(path):
-                self.sounds[sf] = pygame.mixer.Sound(path)
-            else:
-                self.sounds[sf] = pygame.mixer.Sound(buffer=b'\x00' * 44100)
+        BASE_DIR = Path(__file__).resolve().parent
+        ASSETS_DIR = BASE_DIR / "assets"
+        # Finally figured it out
+        sound_files: list[str] = [
+            "relay1.wav",
+            "relay2.wav",
+            "start.wav",
+            "stop.wav",
+            "wash.wav",
+            "MotorPump1.wav"
+        ]
+        for filename in sound_files:
+            path = ASSETS_DIR / filename
+
+            if not path.exists():
+                raise FileNotFoundError(f"Missing audio asset: {path}")
+
+            self.sounds[filename] = pygame.mixer.Sound(str(path))
 
     def play_fx(self, name):
-        self.ch_fx.play(self.sounds[name])
+        self.ch_fx(self.sounds[name])
         return self.sounds[name].get_length() * 1000
 
     def start_loops(self):
@@ -272,7 +301,7 @@ class DoorButton:
         surface.blit(txt_surf, txt_rect)
 
 
-#if u break the logic its not my problem, future code editor
+# if you break the logic its not my problem, future code editor
 class DishwasherMachine:
     def __init__(self):
         self.powered_on = True
@@ -506,7 +535,7 @@ class DishwasherMachine:
                     audio.stop_loops()
                     self.state = "DRAINING"
                     self.seq_step = 1
-                    dur = audio.play_fx("stop.wav")
+                    dur = audio.play_fx("assets/stop.wav")
                     self.next_trigger_time = now + dur
 
         elif self.state == "DRAINING":

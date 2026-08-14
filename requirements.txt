@@ -1,2 +1,0 @@
-u need to install pygame i think to run it, also, make a folder named "Sounds" and put the wav files in there, the script needs it 
-bye :D
